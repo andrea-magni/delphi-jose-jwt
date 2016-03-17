@@ -55,7 +55,7 @@ begin
   LSigner := nil;
 
   if not IdSSLOpenSSL.LoadOpenSSLLibrary then
-    raise Exception.Create('Cannot load OpenSSL Library.');
+    raise Exception.Create('Error Message');
 
   case AAlg of
     SHA256: LSigner := TIdHMACSHA256.Create;

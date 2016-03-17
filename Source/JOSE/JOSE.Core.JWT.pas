@@ -37,6 +37,7 @@ uses
   System.Rtti,
   System.Generics.Collections,
   JOSE.Types.JSON,
+  MARS.Core.JSON,
   JOSE.Types.Bytes,
   JOSE.Core.Base,
   JOSE.Core.JWA,
@@ -91,7 +92,7 @@ type
     procedure SetNotBefore(Value: TDateTime);
     procedure SetSubject(Value: string);
   public
-    procedure SetClaimOfType<T>(const AName: string; const AValue: T);
+//    procedure SetClaimOfType<T>(const AName: string; const AValue: T);
     function GenerateJWTId(ANumberOfBytes: Integer = 16): string;
     procedure CheckRegisteredClaims(AOptions: TClaimVerifications = []); virtual;
 
@@ -142,11 +143,12 @@ end;
 
 { TJWTClaims }
 
+{
 procedure TJWTClaims.SetClaimOfType<T>(const AName: string; const AValue: T);
 begin
   AddPairOfType<T>(AName, AValue);
 end;
-
+}
 procedure TJWTClaims.CheckRegisteredClaims(AOptions: TClaimVerifications = []);
 //var
 //  LOption: TClaimVerification;

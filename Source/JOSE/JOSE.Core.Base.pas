@@ -31,7 +31,8 @@ uses
   System.SysUtils,
   System.Generics.Collections,
   JOSE.Types.Bytes,
-  JOSE.Types.JSON;
+  // JOSE.Types.JSON;
+  MARS.Core.JSON;
 
 const
   PART_SEPARATOR: Char = '.';
@@ -48,7 +49,7 @@ type
   protected
     FJSON: TJSONObject;
 
-    procedure AddPairOfType<T>(const AName: string; const AValue: T);
+//    procedure AddPairOfType<T>(const AName: string; const AValue: T);
   public
     constructor Create;
     destructor Destroy; override;
@@ -112,9 +113,9 @@ begin
 
 end;
 
-procedure TJOSEBase.AddPairOfType<T>(const AName: string; const AValue: T);
-begin
-  TJSONUtils.SetJSONValueFrom<T>(AName, AValue, FJSON);
-end;
+//procedure TJOSEBase.AddPairOfType<T>(const AName: string; const AValue: T);
+//begin
+//  TJSONUtils.SetJSONValueFrom<T>(AName, AValue, FJSON);
+//end;
 
 end.

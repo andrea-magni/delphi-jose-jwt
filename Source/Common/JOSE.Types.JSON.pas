@@ -32,21 +32,12 @@ uses
   System.StrUtils,
   System.DateUtils,
   System.Rtti,
-  System.JSON;
+  MARS.Core.JSON,
+  MARS.Core.Utils
+  ;
 
 type
   EJSONConversionException = class(Exception);
-
-  TJSONAncestor = System.JSON.TJSONAncestor;
-  TJSONPair = System.JSON.TJSONPair;
-  TJSONValue = System.JSON.TJSONValue;
-  TJSONTrue = System.JSON.TJSONTrue;
-  TJSONString = System.JSON.TJSONString;
-  TJSONNumber = System.JSON.TJSONNumber;
-  TJSONObject = System.JSON.TJSONObject;
-  TJSONNull = System.JSON.TJSONNull;
-  TJSONFalse = System.JSON.TJSONFalse;
-  TJSONArray = System.JSON.TJSONArray;
 
   TJSONUtils = class
   private
@@ -77,21 +68,8 @@ uses
 { TJSONUtils }
 
 class function TJSONUtils.GetJSONValue(const AName: string; AJSON: TJSONObject): TValue;
-var
-  LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
-
-  if not Assigned(LValue) then
-    Result := TValue.Empty
-  else if LValue is TJSONTrue then
-    Result := True
-  else if LValue is TJSONFalse then
-    Result := False
-  else if LValue is TJSONNumber then
-    Result := TJSONNumber(LValue).AsDouble
-  else
-    Result := LValue.Value;
+  Result := TValue.FromVariant(AJSON.Values[AName]);
 end;
 
 class function TJSONUtils.GetJSONValueAsDate(const AName: string; AJSON: TJSONObject): TDateTime;
@@ -120,7 +98,9 @@ class function TJSONUtils.GetJSONValueDouble(const AName: string; AJSON: TJSONOb
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
 
   if not Assigned(LValue) then
     Result := TValue.Empty
@@ -134,7 +114,9 @@ class function TJSONUtils.GetJSONValueInt(const AName: string; AJSON: TJSONObjec
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
 
   if not Assigned(LValue) then
     Result := TValue.Empty
@@ -148,7 +130,9 @@ class function TJSONUtils.GetJSONValueInt64(const AName: string; AJSON: TJSONObj
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
 
   if not Assigned(LValue) then
     Result := TValue.Empty
@@ -162,7 +146,9 @@ class procedure TJSONUtils.RemoveJSONNode(const AName: string; AJSON: TJSONObjec
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
   if Assigned(LValue) then
     AJSON.RemovePair(AName);
 end;
@@ -171,7 +157,9 @@ class procedure TJSONUtils.SetJSONValue(const AName: string; const AValue: Int64
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
   if Assigned(LValue) then
     AJSON.RemovePair(AName);
 
@@ -187,7 +175,9 @@ class procedure TJSONUtils.SetJSONValue(const AName: string; const AValue: Doubl
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
   if Assigned(LValue) then
     AJSON.RemovePair(AName);
 
@@ -198,7 +188,9 @@ class procedure TJSONUtils.SetJSONValue(const AName: string; const AValue: strin
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
   if Assigned(LValue) then
     AJSON.RemovePair(AName);
 
@@ -209,7 +201,9 @@ class procedure TJSONUtils.SetJSONValue(const AName: string; const AValue: Integ
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
   if Assigned(LValue) then
     AJSON.RemovePair(AName);
 
@@ -220,7 +214,9 @@ class procedure TJSONUtils.SetJSONValue(const AName: string; const AValue: Boole
 var
   LValue: TJSONValue;
 begin
-  LValue := AJSON.GetValue(AName);
+  LValue := nil;
+  if Assigned(AJSON.Get(AName)) then
+    LValue := AJSON.Get(AName).JsonValue;
   if Assigned(LValue) then
     AJSON.RemovePair(AName);
 
@@ -240,7 +236,7 @@ begin
     tkWString,
     tkUString:
     begin
-      SetJSONValue(AName, AValue.AsType<string>, AJSON);
+      SetJSONValue(AName, AValue.AsString, AJSON);
     end;
 
     tkEnumeration:
@@ -256,7 +252,7 @@ begin
       if SameText(AValue.TypeInfo^.NameFld.ToString, 'TDateTime') or
          SameText(AValue.TypeInfo^.NameFld.ToString, 'TDate') or
          SameText(AValue.TypeInfo^.NameFld.ToString, 'TTime') then
-        SetJSONValue(AName, DateTimeToUnix(AValue.AsType<TDateTime>), AJSON)
+        SetJSONValue(AName, DateTimeToUnix(AValue.AsExtended), AJSON)
       else
         if AValue.Kind = tkFloat then
           SetJSONValue(AName, AValue.AsType<Double>, AJSON)

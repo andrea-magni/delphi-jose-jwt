@@ -114,7 +114,7 @@ var
   LRes: TStringDynArray;
 begin
   LRes := SplitString(Value, PART_SEPARATOR);
-  if Length(LRes) = COMPACT_PARTS then
+  if Length(LRes) = 3 then
   begin
     FParts[0] := LRes[0];
     FParts[1] := LRes[1];
@@ -149,8 +149,8 @@ begin
   Empty;
 
   FToken.Header.Algorithm := AAlg.AsString;
-  Header := TBase64.URLEncode(FToken.Header.JSON.ToJSON);
-  Payload := TBase64.URLEncode(FToken.Claims.JSON.ToJSON);
+  Header := TBase64.URLEncode(FToken.Header.JSON.ToString);
+  Payload := TBase64.URLEncode(FToken.Claims.JSON.ToString);
 
   case AAlg of
     None:  LSign.Clear;

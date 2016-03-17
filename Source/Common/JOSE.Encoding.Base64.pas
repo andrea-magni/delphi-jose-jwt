@@ -29,7 +29,11 @@ interface
 
 uses
   System.SysUtils,
+{$if compilerversion = 28}
   System.NetEncoding,
+{$else}
+  IdCoderMIME, IdGlobal,
+{$endif}
   JOSE.Types.Bytes;
 
 type
@@ -46,12 +50,20 @@ implementation
 
 class function TBase64.Decode(const ASource: TSuperBytes): TSuperBytes;
 begin
+{$if compilerversion = 28}
   Result := TNetEncoding.Base64.Decode(ASource.AsBytes);
+{$else}
+  Result := TBytes(TIdDecoderMIME.DecodeBytes(ASource.AsString));
+{$endif}
 end;
 
 class function TBase64.Encode(const ASource: TSuperBytes): TSuperBytes;
 begin
+{$if compilerversion = 28}
   Result := TNetEncoding.Base64.Encode(ASource.AsBytes);
+{$else}
+  Result := TIdEncoderMIME.EncodeBytes(TIdBytes(ASource.AsBytes));
+{$endif}
 end;
 
 class function TBase64.URLDecode(const ASource: TSuperBytes): TSuperBytes;
