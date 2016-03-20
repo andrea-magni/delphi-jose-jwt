@@ -28,7 +28,7 @@
 /// </seealso>
 unit JOSE.Core.JWA;
 
-{$I Mars.inc}
+{$I MARS.inc}
 
 interface
 
@@ -85,7 +85,7 @@ begin
     Self := RS512;
 end;
 {$else}
-{$endif}
+
 
 { TJWAEnumHelper }
 
@@ -119,5 +119,7 @@ begin
     RS512: Result := 'RS512';
   end;
 end;
+
+{$endif}
 
 end.
