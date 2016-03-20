@@ -28,8 +28,8 @@ unit JOSE.Core.Parts;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   JOSE.Types.Bytes,
   JOSE.Core.JWT;
 

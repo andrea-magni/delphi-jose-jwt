@@ -31,11 +31,11 @@ unit JOSE.Core.JWT;
 interface
 
 uses
-  System.SysUtils,
-  System.StrUtils,
-  System.DateUtils,
-  System.Rtti,
-  System.Generics.Collections,
+  SysUtils,
+  StrUtils,
+  DateUtils,
+  Rtti,
+  Generics.Collections,
   JOSE.Types.JSON,
   MARS.Core.JSON,
   JOSE.Types.Bytes,

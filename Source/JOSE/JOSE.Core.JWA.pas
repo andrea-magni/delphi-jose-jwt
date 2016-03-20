@@ -28,11 +28,14 @@
 /// </seealso>
 unit JOSE.Core.JWA;
 
+{$I Mars.inc}
+
 interface
 
 type
   TJWAEnum = (None, HS256, HS384, HS512, RS256, RS348, RS512);
 
+  {$ifdef DelphiXE8_UP}
   TJWAEnumHelper = record helper for TJWAEnum
   private
     function GetAsString: string;
@@ -40,9 +43,17 @@ type
   public
     property AsString: string read GetAsString write SetAsString;
   end;
+  {$else}
+  TJWAEnumHelper = class
+  public
+    class function AsString(AEnum: TJWAEnum): string; static;
+    class function FromString(AString: string): TJWAEnum; static;
+  end;
+  {$endif}
 
 implementation
 
+{$ifdef DelphiXE8_UP}
 function TJWAEnumHelper.GetAsString: string;
 begin
   case Self of
@@ -72,6 +83,41 @@ begin
     Self := RS348
   else if Value = 'RS512' then
     Self := RS512;
+end;
+{$else}
+{$endif}
+
+{ TJWAEnumHelper }
+
+class function TJWAEnumHelper.FromString(AString: string): TJWAEnum;
+begin
+  if AString = 'none' then
+    Result := None
+  else if AString = 'HS256' then
+    Result := HS256
+  else if AString = 'HS384' then
+    Result := HS384
+  else if AString = 'HS512' then
+    Result := HS512
+  else if AString = 'RS256' then
+    Result := RS256
+  else if AString = 'RS348' then
+    Result := RS348
+  else if AString = 'RS512' then
+    Result := RS512;
+end;
+
+class function TJWAEnumHelper.AsString(AEnum: TJWAEnum): string;
+begin
+  case AEnum of
+    None:  Result := 'none';
+    HS256: Result := 'HS256';
+    HS384: Result := 'HS384';
+    HS512: Result := 'HS512';
+    RS256: Result := 'RS256';
+    RS348: Result := 'RS348';
+    RS512: Result := 'RS512';
+  end;
 end;
 
 end.

@@ -28,10 +28,12 @@
 /// </seealso>
 unit JOSE.Core.JWS;
 
+{$I Mars.inc}
+
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   JOSE.Types.Bytes,
   JOSE.Core.Base,
   JOSE.Core.Parts,
@@ -69,8 +71,8 @@ type
 implementation
 
 uses
-  System.Types,
-  System.StrUtils,
+  Types,
+  StrUtils,
   JOSE.Encoding.Base64,
   JOSE.Hashing.HMAC;
 
@@ -148,7 +150,12 @@ var
 begin
   Empty;
 
+  {$ifdef DelphiXE8_UP}
   FToken.Header.Algorithm := AAlg.AsString;
+  {$else}
+  FToken.Header.Algorithm := TJWAEnumHelper.AsString(AAlg);
+  {$endif}
+
   Header := TBase64.URLEncode(FToken.Header.JSON.ToString);
   Payload := TBase64.URLEncode(FToken.Claims.JSON.ToString);
 
@@ -172,7 +179,11 @@ var
 begin
   CompactToken := ACompactToken;
 
+  {$ifdef DelphiXE8_UP}
   LAlg.AsString := FToken.Header.Algorithm;
+  {$else}
+  LAlg := TJWAEnumHelper.FromString(FToken.Header.Algorithm);
+  {$endif}
   case LAlg of
     None : FToken.Verified := AKey.Key.IsEmpty;
     HS256: LExpectedSign := THMAC.Sign(SigningInput, AKey.Key, SHA256);

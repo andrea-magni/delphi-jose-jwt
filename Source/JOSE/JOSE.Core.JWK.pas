@@ -31,7 +31,7 @@ unit JOSE.Core.JWK;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   JOSE.Types.Bytes,
   JOSE.Core.Base;
 

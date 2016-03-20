@@ -28,7 +28,7 @@ unit JOSE.Core.Builder;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   JOSE.Types.Bytes,
   JOSE.Core.Base,
   JOSE.Core.Parts,
@@ -56,8 +56,8 @@ type
 implementation
 
 uses
-  System.Types,
-  System.StrUtils;
+  Types,
+  StrUtils;
 
 { TJOSE }
 

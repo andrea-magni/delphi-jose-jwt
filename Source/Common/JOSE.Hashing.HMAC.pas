@@ -28,7 +28,7 @@ unit JOSE.Hashing.HMAC;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   IdGlobal,
   IdHMAC,
   IdHMACSHA1,

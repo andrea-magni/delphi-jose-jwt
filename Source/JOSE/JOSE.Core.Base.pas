@@ -28,8 +28,8 @@ unit JOSE.Core.Base;
 interface
 
 uses
-  System.SysUtils,
-  System.Generics.Collections,
+  SysUtils,
+  Generics.Collections,
   JOSE.Types.Bytes,
   // JOSE.Types.JSON;
   MARS.Core.JSON;

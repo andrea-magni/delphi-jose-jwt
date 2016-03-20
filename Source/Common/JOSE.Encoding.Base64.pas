@@ -25,11 +25,12 @@
 /// </summary>
 unit JOSE.Encoding.Base64;
 
+{$I Mars.inc}
 interface
 
 uses
-  System.SysUtils,
-{$if compilerversion = 28}
+  SysUtils,
+{$ifdef DelphiXE7_UP}
   System.NetEncoding,
 {$else}
   IdCoderMIME, IdGlobal,
@@ -50,7 +51,7 @@ implementation
 
 class function TBase64.Decode(const ASource: TSuperBytes): TSuperBytes;
 begin
-{$if compilerversion = 28}
+{$ifdef DelphiXE7_UP}
   Result := TNetEncoding.Base64.Decode(ASource.AsBytes);
 {$else}
   Result := TBytes(TIdDecoderMIME.DecodeBytes(ASource.AsString));
@@ -59,7 +60,7 @@ end;
 
 class function TBase64.Encode(const ASource: TSuperBytes): TSuperBytes;
 begin
-{$if compilerversion = 28}
+{$ifdef DelphiXE7_UP}
   Result := TNetEncoding.Base64.Encode(ASource.AsBytes);
 {$else}
   Result := TIdEncoderMIME.EncodeBytes(TIdBytes(ASource.AsBytes));
@@ -87,7 +88,8 @@ begin
   LBase64Str := StringReplace(LBase64Str, #13#10, '', [rfReplaceAll]);
   LBase64Str := StringReplace(LBase64Str, #13, '', [rfReplaceAll]);
   LBase64Str := StringReplace(LBase64Str, #10, '', [rfReplaceAll]);
-  LBase64Str := LBase64Str.TrimRight(['=']);
+
+  LBase64Str := TrimRight(LBase64Str);
 
   LBase64Str := StringReplace(LBase64Str, '+', '-', [rfReplaceAll]);
   LBase64Str := StringReplace(LBase64Str, '/', '_', [rfReplaceAll]);

@@ -28,10 +28,10 @@ unit JOSE.Types.JSON;
 interface
 
 uses
-  System.SysUtils,
-  System.StrUtils,
-  System.DateUtils,
-  System.Rtti,
+  SysUtils,
+  StrUtils,
+  DateUtils,
+  Rtti,
   MARS.Core.JSON,
   MARS.Core.Utils
   ;
@@ -63,7 +63,7 @@ type
 implementation
 
 uses
-  System.TypInfo;
+  TypInfo;
 
 { TJSONUtils }
 
@@ -137,7 +137,7 @@ begin
   if not Assigned(LValue) then
     Result := TValue.Empty
   else if LValue is TJSONNumber then
-    Result := TJSONNumber(LValue).AsInt64
+    Result := TJSONNumber(LValue).AsInt
   else
     raise EJSONConversionException.Create('JSON Incompatible type. Expected Int64');
 end;
@@ -241,7 +241,7 @@ begin
 
     tkEnumeration:
     begin
-      if AValue.TypeInfo^.NameFld.ToString = 'Boolean' then
+      if AValue.TypeInfo^.Name = 'Boolean' then
         SetJSONValue(AName, AValue.AsType<Boolean>, AJSON);
     end;
 
@@ -249,9 +249,10 @@ begin
     tkInt64,
     tkFloat:
     begin
-      if SameText(AValue.TypeInfo^.NameFld.ToString, 'TDateTime') or
-         SameText(AValue.TypeInfo^.NameFld.ToString, 'TDate') or
-         SameText(AValue.TypeInfo^.NameFld.ToString, 'TTime') then
+      //TODO -o Andrea Magni: was AValue.TypeInfo^.NameFld.ToString, check correctness of AVAlye.TypeInfo^.Name
+      if SameText(AValue.TypeInfo^.Name, 'TDateTime') or
+         SameText(AValue.TypeInfo^.Name, 'TDate') or
+         SameText(AValue.TypeInfo^.Name, 'TTime') then
         SetJSONValue(AName, DateTimeToUnix(AValue.AsExtended), AJSON)
       else
         if AValue.Kind = tkFloat then

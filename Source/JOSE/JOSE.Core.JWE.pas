@@ -31,7 +31,7 @@ unit JOSE.Core.JWE;
 interface
 
 uses
-  System.SysUtils,
+  SysUtils,
   JOSE.Types.Bytes,
   JOSE.Core.Base,
   JOSE.Core.Parts,
