@@ -1,7 +1,7 @@
 {******************************************************************************}
 {                                                                              }
 {  Delphi JOSE Library                                                         }
-{  Copyright (c) 2015 Paolo Rossi                                              }
+{  Copyright (c) 2015-2017 Paolo Rossi                                         }
 {  https://github.com/paolo-rossi/delphi-jose-jwt                              }
 {                                                                              }
 {******************************************************************************}
@@ -28,7 +28,11 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, IdGlobal, System.Generics.Defaults,
   System.Generics.Collections, Vcl.ExtCtrls, Vcl.ComCtrls,
-  JOSE.Core.JWT, JOSE.Core.JWS, JOSE.Core.JWK, JOSE.Core.JWA, JOSE.Types.JSON;
+  JOSE.Core.JWT,
+  JOSE.Core.JWS,
+  JOSE.Core.JWK,
+  JOSE.Core.JWA,
+  JOSE.Types.JSON;
 
 type
   TMyClaims = class(TJWTClaims)
@@ -97,8 +101,8 @@ begin
 
     mmoCompact.Lines.Add(TJOSE.SHA256CompactToken('secret', LToken));
 
-    mmoJSON.Lines.Add(LToken.Header.JSON.ToJSON);
-    mmoJSON.Lines.Add(LToken.Claims.JSON.ToJSON);
+    mmoJSON.Lines.Add(TJSONUtils.ToJSON(LToken.Header.JSON));
+    mmoJSON.Lines.Add(TJSONUtils.ToJSON(LToken.Claims.JSON));
   finally
     LToken.Free;
   end;

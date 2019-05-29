@@ -1,7 +1,7 @@
 {******************************************************************************}
 {                                                                              }
 {  Delphi JOSE Library                                                         }
-{  Copyright (c) 2015 Paolo Rossi                                              }
+{  Copyright (c) 2015-2017 Paolo Rossi                                         }
 {  https://github.com/paolo-rossi/delphi-jose-jwt                              }
 {                                                                              }
 {******************************************************************************}
@@ -25,55 +25,20 @@ unit JWTDemo.Form.Main;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, IdGlobal, System.Generics.Defaults,
-  System.Generics.Collections, Vcl.ExtCtrls, Vcl.ComCtrls,
-  JOSE.Core.JWT, JOSE.Core.JWS, JOSE.Core.JWK, JOSE.Core.JWA, JOSE.Types.JSON;
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Classes,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls,
+  JWTDemo.Form.Debugger,
+  JWTDemo.Form.Consumer,
+  JWTDemo.Form.Simple,
+  JWTDemo.Form.Claims,
+  JWTDemo.Form.Misc;
 
 type
-  TMyClaims = class(TJWTClaims)
-  private
-    function GetAppIssuer: string;
-    procedure SetAppIssuer(const Value: string);
-  public
-    property AppIssuer: string read GetAppIssuer write SetAppIssuer;
-  end;
-
   TfrmMain = class(TForm)
-    mmoJSON: TMemo;
-    mmoCompact: TMemo;
-    Label1: TLabel;
-    Label2: TLabel;
-    PageControl1: TPageControl;
-    tsSimple: TTabSheet;
-    tsCustom: TTabSheet;
-    Label3: TLabel;
-    Label4: TLabel;
-    Label5: TLabel;
-    Label6: TLabel;
-    edtIssuer: TLabeledEdit;
-    edtIssuedAtTime: TDateTimePicker;
-    edtNotBeforeDate: TDateTimePicker;
-    edtExpiresDate: TDateTimePicker;
-    chkIssuer: TCheckBox;
-    chkIssuedAt: TCheckBox;
-    chkExpires: TCheckBox;
-    chkNotBefore: TCheckBox;
-    btnCustomJWS: TButton;
-    edtIssuedAtDate: TDateTimePicker;
-    edtExpiresTime: TDateTimePicker;
-    edtNotBeforeTime: TDateTimePicker;
-    cbbAlgorithm: TComboBox;
-    btnBuild: TButton;
-    btnTJOSEBuild: TButton;
-    btnTJOSEVerify: TButton;
-    btnTestClaims: TButton;
-    procedure btnTJOSEVerifyClick(Sender: TObject);
-    procedure btnBuildClick(Sender: TObject);
-    procedure btnTestClaimsClick(Sender: TObject);
-    procedure btnTJOSEBuildClick(Sender: TObject);
+    pgcMain: TPageControl;
+    procedure FormCreate(Sender: TObject);
   private
-    //FToken: TJWT;
+    procedure PasteForm(AFormClass: TFormClass; const ATabName, ATabTitle: string);
   public
     { Public declarations }
   end;
@@ -83,114 +48,35 @@ var
 
 implementation
 
-uses
-  System.Rtti,
-  JOSE.Types.Bytes,
-  JOSE.Core.Builder;
-
 {$R *.dfm}
 
-procedure TfrmMain.btnTJOSEVerifyClick(Sender: TObject);
+procedure TfrmMain.FormCreate(Sender: TObject);
+begin
+  PasteForm(TfrmDebugger, 'tsDebugger', 'JWT Debugger (http://jwt.io)');
+  PasteForm(TfrmSimple, 'tsSimple', 'Simple Token');
+  PasteForm(TfrmConsumer, 'tsConsumer', 'JWT Consumer (Claim Validation)');
+  PasteForm(TfrmClaims, 'tsClaims', 'Custom Claims');
+  //PasteForm(TfrmMisc, 'tsMisc', 'Miscellanea');
+  pgcMain.ActivePageIndex := 0;
+end;
+
+procedure TfrmMain.PasteForm(AFormClass: TFormClass; const ATabName, ATabTitle: string);
 var
-  LKey: TJWK;
-  LToken: TJWT;
+  LView: TForm;
+  LTab: TTabSheet;
 begin
-  LKey := TJWK.Create('secret');
-  // Unpack and verify the token
-  LToken := TJOSE.Verify(LKey, 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJXaVJMIn0.w3BAZ_GwfQYY6dkS8xKUNZ_sOnkDUMELxBN0mKKNhJ4');
+  LTab := TTabSheet.Create(Self);
+  LTab.PageControl := pgcMain;
+  LTab.Name := ATabName;
+  LTab.Caption := ATabTitle;
 
-  if Assigned(LToken) then
-  begin
-    try
-      if LToken.Verified then
-        mmoJSON.Lines.Add('Token signature is verified')
-      else
-        mmoJSON.Lines.Add('Token signature is not verified')
-    finally
-      LToken.Free;
-    end;
-  end;
-end;
-
-procedure TfrmMain.btnBuildClick(Sender: TObject);
-var
-  LToken: TJWT;
-  LSigner: TJWS;
-  LKey: TJWK;
-  LClaims: TMyClaims;
-begin
-  LToken := TJWT.Create(TJWTClaims);
-  try
-    LToken.Claims.Issuer := 'WiRL REST Library';
-    LToken.Claims.IssuedAt := Now;
-    LToken.Claims.Expiration := Now + 1;
-
-    LSigner := TJWS.Create(LToken);
-    LKey := TJWK.Create('secret');
-    try
-      LSigner.Sign(LKey, HS256);
-
-      mmoJSON.Lines.Add('Header: ' + LToken.Header.JSON.ToJSON);
-      mmoJSON.Lines.Add('Claims: ' + LToken.Claims.JSON.ToJSON);
-
-      mmoCompact.Lines.Add('Header: ' + LSigner.Header);
-      mmoCompact.Lines.Add('Payload: ' + LSigner.Payload);
-      mmoCompact.Lines.Add('Signature: ' + LSigner.Signature);
-      mmoCompact.Lines.Add('Compact Token: ' + LSigner.CompactToken);
-    finally
-      LKey.Free;
-      LSigner.Free;
-    end;
-  finally
-    LToken.Free;
-  end;
-end;
-
-procedure TfrmMain.btnTestClaimsClick(Sender: TObject);
-var
-  LToken: TJWT;
-begin
-  // Create a JWT Object
-  LToken := TJWT.Create(TJWTClaims);
-  try
-    LToken.Claims.IssuedAt := Now;
-    mmoJSON.Lines.Add('IssuedAt: ' + DateTimeToStr(LToken.Claims.IssuedAt));
-  finally
-    LToken.Free;
-  end;
-end;
-
-procedure TfrmMain.btnTJOSEBuildClick(Sender: TObject);
-var
-  LToken: TJWT;
-begin
-  // Create a JWT Object
-  LToken := TJWT.Create(TJWTClaims);
-  try
-    // Token claims
-    LToken.Claims.IssuedAt := Now;
-    LToken.Claims.Expiration := Now + 1;
-    LToken.Claims.Issuer := 'WiRL REST Library';
-
-    // Signing and Compact format creation
-    mmoCompact.Lines.Add(TJOSE.SHA256CompactToken('secret', LToken));
-
-    // Header and Claims JSON representation
-    mmoJSON.Lines.Add(LToken.Header.JSON.ToJSON);
-    mmoJSON.Lines.Add(LToken.Claims.JSON.ToJSON);
-  finally
-    LToken.Free;
-  end;
-end;
-
-function TMyClaims.GetAppIssuer: string;
-begin
-  Result := TJSONUtils.GetJSONValue('ais', FJSON).AsString;
-end;
-
-procedure TMyClaims.SetAppIssuer(const Value: string);
-begin
-  TJSONUtils.SetJSONValueFrom<string>('ais', Value, FJSON);
+  LView := AFormClass.Create(Application);
+  LView.BorderStyle := bsNone;
+  LView.Top := 0;
+  LView.Left := 0;
+  LView.Parent := LTab;
+  LView.Align := alClient;
+  LView.Show;
 end;
 
 end.
